@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Skylark Upgrade Page</title>
+
+<link rel="icon" type="image/png" sizes="32x32" href="https://endlesspete.github.io/Medotdev/BBA22EA1-962D-44D9-B632-3E823FF06445.png">
+<link rel="apple-touch-icon" href="https://endlesspete.github.io/Medotdev/BBA22EA1-962D-44D9-B632-3E823FF06445.png">
+
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --muted: #6e6e73;
+  --border: #d1d1d6;
+  --accent: #007aff;
+  --danger: #ff3b30;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0b0d;
+    --card: #1c1c1e;
+    --text: #f2f2f7;
+    --muted: #9a9aa1;
+    --border: #2a2a2c;
+    --accent: #6aa9ff;
+    --danger: #ff6961;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top, rgba(0,122,255,.12), transparent 40%),
+    var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 22px;
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -1.8px;
+  margin: 0;
+  background: linear-gradient(180deg, #ffffff, #9cc7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@media (prefers-color-scheme: light) {
+  .hero-title {
+    background: linear-gradient(180deg, #007aff, #003e8a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.hero-subtitle {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: .98rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 34px;
+  padding: 28px 24px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.35) inset,
+    0 16px 40px rgba(0,0,0,.12);
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(0,122,255,.12);
+  color: var(--accent);
+  font-size: .8rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -.8px;
+  line-height: 1.15;
+}
+
+.version {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.button {
+  display: block;
+  margin-top: 26px;
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 18px;
+  padding: 16px 18px;
+  background: var(--accent);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+.button:active {
+  transform: scale(.97);
+}
+
+.button.disabled {
+  opacity: .45;
+  pointer-events: none;
+  user-select: none;
+  background: #8e8e93;
+}
+
+.small {
+  margin-top: 14px;
+  font-size: .84rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.small a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.error {
+  margin-top: 18px;
+  color: var(--danger);
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.footer {
+  margin-top: 26px;
+  text-align: center;
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="hero">
+    <h1 class="hero-title">Skylark Upgrade Page</h1>
+    <div class="hero-subtitle">Automatically finds your compatible Skylark edition</div>
+  </div>
+
+  <div class="card">
+    <div class="badge" id="badge">Checking Device</div>
+    <div class="title" id="title">Loading...</div>
+    <div class="version" id="version">Please wait while Skylark checks compatibility</div>
+
+    <a id="button" class="button" href="#">Loading</a>
+
+    <div class="small" id="small">Checking compatibility...</div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <div class="footer">
+    <a href="https://x.com/Useskylark" target="_blank">@UseSkylark</a>
+    <br>
+    <a href="https://x.com/endlesspeteinc" target="_blank">@Endlesspeteinc</a>
+  </div>
+</div>
+
+<script>
+const editions = [
+  {
+    edition: "Edition 1",
+    min: 14.3,
+    max: 14.8,
+    link: "https://www.icloud.com/shortcuts/0e72496714944ee296007b436b4d3a8f"
+  },
+  {
+    edition: "Edition 2",
+    min: 15.0,
+    max: 15.8,
+    link: "https://www.icloud.com/shortcuts/65a674774ee5475cba87bb8ad822b08a"
+  },
+  {
+    edition: "Edition 3",
+    min: 16.0,
+    max: 16.7,
+    link: "https://www.icloud.com/shortcuts/9c5bd486f48d4448b47bf423616ce882"
+  },
+  {
+    edition: "Edition 4",
+    min: 17.0,
+    max: 17.7,
+    link: "https://www.icloud.com/shortcuts/8753eef694b54d13b29821ee68343e32"
+  },
+  {
+    edition: "Edition 5",
+    min: 18.0,
+    max: 18.7,
+    link: "https://www.icloud.com/shortcuts/1f61f828cbf14f739117c164a4b5584a"
+  },
+  {
+    edition: "Edition 6",
+    min: 26.0,
+    max: 26.5,
+    link: "https://www.icloud.com/shortcuts/1808f5c3a3e74087bbece8a28a219d7e"
+  }
+];
+
+const ua = navigator.userAgent;
+
+const isApple =
+  /iPhone|iPad|Macintosh/.test(ua) &&
+  !/Android/.test(ua);
+
+let ios = null;
+
+const osMatch = ua.match(/OS (\d+)[._](\d+)/);
+const versionMatch = ua.match(/Version\/(\d+)\.(\d+)/);
+
+if (osMatch) {
+  ios = parseFloat(`${osMatch[1]}.${osMatch[2]}`);
+}
+
+/* iOS 26+ Fix */
+if (versionMatch) {
+  const safariMajor = parseInt(versionMatch[1]);
+  const safariMinor = parseInt(versionMatch[2]);
+
+  if (safariMajor >= 26 && ios && ios <= 18.7) {
+    ios = parseFloat(`${safariMajor}.${safariMinor}`);
+  }
+}
+
+const badge = document.getElementById("badge");
+const title = document.getElementById("title");
+const version = document.getElementById("version");
+const button = document.getElementById("button");
+const small = document.getElementById("small");
+const error = document.getElementById("error");
+
+function unsupported(status, heading, subtext, buttonText, smallText, errorText) {
+  badge.textContent = status;
+  title.textContent = heading;
+  version.textContent = subtext;
+  button.textContent = buttonText;
+  button.classList.add("disabled");
+  small.innerHTML = smallText;
+  error.textContent = errorText;
+}
+
+const supportText = `
+  Contact support if you believe this is an issue.<br>
+  <a href="https://x.com/skylarksupport" target="_blank">@SkylarkSupport</a>
+`;
+
+if (!isApple) {
+  unsupported(
+    "Unsupported Device",
+    "Skylark only supports Apple devices",
+    "iPhone, iPad, and other Apple devices are required",
+    "Unsupported",
+    supportText,
+    "Android, Windows, and Linux devices are not supported."
+  );
+
+  throw new Error("Unsupported device");
+}
+
+if (!ios) {
+  unsupported(
+    "Unknown iOS Version",
+    "Unable to determine iOS version",
+    "Your iOS version may be newer or unsupported",
+    "Unsupported",
+    supportText,
+    "Unable to identify your iOS version."
+  );
+
+  throw new Error("Unknown iOS");
+}
+
+if (ios < 14.3) {
+  unsupported(
+    "Unsupported iOS",
+    "Your iOS version is too old",
+    `Detected iOS ${ios}`,
+    "Unsupported",
+    supportText,
+    "iOS 14.3 or newer is required."
+  );
+
+  throw new Error("Too old");
+}
+
+let found = null;
+
+for (const item of editions) {
+  if (ios >= item.min && ios <= item.max) {
+    found = item;
+  }
+}
+
+if (!found) {
+  unsupported(
+    "Unsupported Version",
+    "Unable to determine compatible Skylark edition",
+    `Detected iOS ${ios}`,
+    "Unsupported",
+    `
+      Your iOS version may be newer or not available yet.<br><br>
+      Contact support if you believe this is an issue.<br>
+      <a href="https://x.com/skylarksupport" target="_blank">@SkylarkSupport</a>
+    `,
+    "A compatible Skylark edition has not been released yet."
+  );
+
+  throw new Error("Unsupported future iOS");
+}
+
+badge.textContent = "Compatible";
+title.textContent = `Skylark (${found.edition}) is your supported edition`;
+version.textContent = `Detected iOS ${ios}`;
+button.textContent = "Get Skylark";
+button.href = found.link;
+
+small.innerHTML = `
+  Find more editions at
+  <a href="https://endlesspete.github.io/Undecimus/" target="_blank">Undecimus</a>
+`;
+
+console.log("Detected iOS:", ios);
+</script>
+
+</body>
+</html>
