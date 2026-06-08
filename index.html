@@ -6,14 +6,14 @@
 
 <title>Skylark Upgrade</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="https://endlesspete.github.io/Medotdev/BBA22EA1-962D-44D9-B632-3E823FF06445.png">
+<link rel="icon" href="https://endlesspete.github.io/Medotdev/BBA22EA1-962D-44D9-B632-3E823FF06445.png">
 <link rel="apple-touch-icon" href="https://endlesspete.github.io/Medotdev/BBA22EA1-962D-44D9-B632-3E823FF06445.png">
 
 <style>
 :root {
   color-scheme: light dark;
   --bg: #f5f5f7;
-  --card: rgba(255,255,255,.82);
+  --card: rgba(255,255,255,.84);
   --text: #1c1c1e;
   --muted: #6e6e73;
   --border: rgba(0,0,0,.08);
@@ -24,7 +24,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #09090b;
-    --card: rgba(28,28,30,.78);
+    --card: rgba(28,28,30,.8);
     --text: #f2f2f7;
     --muted: #a1a1aa;
     --border: rgba(255,255,255,.1);
@@ -45,7 +45,7 @@ body {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at top, rgba(0,122,255,.18), transparent 42%),
+    radial-gradient(circle at top, rgba(0,122,255,.16), transparent 42%),
     var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
@@ -67,17 +67,9 @@ body {
   font-weight: 850;
   letter-spacing: -2px;
   line-height: .95;
-  background: linear-gradient(180deg, #ffffff, #8dbfff);
+  background: linear-gradient(180deg, #007aff, #003e8a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-@media (prefers-color-scheme: light) {
-  .hero-title {
-    background: linear-gradient(180deg, #007aff, #003e8a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
 }
 
 .hero-subtitle {
@@ -88,22 +80,18 @@ body {
 }
 
 .card {
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 34px;
   padding: 28px 24px;
   text-align: center;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.35) inset,
-    0 18px 45px rgba(0,0,0,.16);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 18px 45px rgba(0,0,0,.16);
 }
 
 .badge {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
   padding: 7px 14px;
   border-radius: 999px;
   background: rgba(0,122,255,.13);
@@ -114,16 +102,15 @@ body {
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 1.7rem;
   font-weight: 850;
   letter-spacing: -.8px;
-  line-height: 1.14;
+  line-height: 1.15;
 }
 
 .version {
   margin-top: 12px;
   color: var(--muted);
-  font-size: 1rem;
   line-height: 1.45;
 }
 
@@ -138,22 +125,16 @@ body {
   font-size: 1rem;
   font-weight: 750;
   text-decoration: none;
-  transition: transform .18s ease, opacity .18s ease;
-}
-
-.button:active {
-  transform: scale(.97);
 }
 
 .button.disabled {
   opacity: .45;
   pointer-events: none;
-  user-select: none;
   background: #8e8e93;
 }
 
 .small {
-  margin-top: 14px;
+  margin-top: 16px;
   font-size: .84rem;
   color: var(--muted);
   line-height: 1.5;
@@ -166,7 +147,7 @@ body {
 }
 
 .error {
-  margin-top: 18px;
+  margin-top: 16px;
   color: var(--danger);
   font-size: .9rem;
   font-weight: 650;
@@ -194,25 +175,18 @@ body {
   <div class="hero">
     <h1 class="hero-title">Skylark Upgrade</h1>
     <div class="hero-subtitle">
-      A smoother Skylark experience starts with the edition made for your device.
+      Get the Skylark edition built for your device.
     </div>
   </div>
 
   <div class="card">
     <div class="badge" id="badge">Checking Device</div>
-
     <div class="title" id="title">Finding your edition...</div>
+    <div class="version" id="version">Please wait while Skylark checks compatibility.</div>
 
-    <div class="version" id="version">
-      Skylark is checking your device compatibility.
-    </div>
+    <a id="button" class="button disabled" href="#">Checking</a>
 
-    <a id="button" class="button" href="#">Checking</a>
-
-    <div class="small" id="small">
-      This only takes a moment.
-    </div>
-
+    <div class="small" id="small">Loading edition data...</div>
     <div class="error" id="error"></div>
   </div>
 
@@ -224,44 +198,7 @@ body {
 </div>
 
 <script>
-const editions = [
-  {
-    edition: "Edition 1",
-    min: 14.3,
-    max: 14.8,
-    link: "https://www.icloud.com/shortcuts/0e72496714944ee296007b436b4d3a8f"
-  },
-  {
-    edition: "Edition 2",
-    min: 15.0,
-    max: 15.8,
-    link: "https://www.icloud.com/shortcuts/65a674774ee5475cba87bb8ad822b08a"
-  },
-  {
-    edition: "Edition 3",
-    min: 16.0,
-    max: 16.7,
-    link: "https://www.icloud.com/shortcuts/9c5bd486f48d4448b47bf423616ce882"
-  },
-  {
-    edition: "Edition 4",
-    min: 17.0,
-    max: 17.7,
-    link: "https://www.icloud.com/shortcuts/8753eef694b54d13b29821ee68343e32"
-  },
-  {
-    edition: "Edition 5",
-    min: 18.0,
-    max: 18.7,
-    link: "https://www.icloud.com/shortcuts/1f61f828cbf14f739117c164a4b5584a"
-  },
-  {
-    edition: "Edition 6",
-    min: 26.0,
-    max: 26.5.1,
-    link: "https://www.icloud.com/shortcuts/5008a65f01ea4f6fbe9397377b8e2b52"
-  }
-];
+const EDITIONS_URL = "/editions.json";
 
 const ua = navigator.userAgent;
 
@@ -269,22 +206,30 @@ const isApple =
   /iPhone|iPad|Macintosh/.test(ua) &&
   !/Android|Windows|Linux/.test(ua);
 
-let ios = null;
+let iosVersion = null;
 
 const osMatch = ua.match(/OS (\d+)[._](\d+)/);
 const versionMatch = ua.match(/Version\/(\d+)\.(\d+)/);
 
 if (osMatch) {
-  ios = parseFloat(`${osMatch[1]}.${osMatch[2]}`);
+  iosVersion = {
+    major: Number(osMatch[1]),
+    minor: Number(osMatch[2]),
+    text: `${osMatch[1]}.${osMatch[2]}`
+  };
 }
 
-/* Helps newer Safari/iOS versions report correctly */
-if (versionMatch) {
-  const safariMajor = parseInt(versionMatch[1]);
-  const safariMinor = parseInt(versionMatch[2]);
+/* iOS 26+ Safari fix */
+if (versionMatch && iosVersion) {
+  const safariMajor = Number(versionMatch[1]);
+  const safariMinor = Number(versionMatch[2]);
 
-  if (safariMajor >= 26 && ios && ios <= 18.7) {
-    ios = parseFloat(`${safariMajor}.${safariMinor}`);
+  if (safariMajor >= 26 && iosVersion.major <= 18) {
+    iosVersion = {
+      major: safariMajor,
+      minor: safariMinor,
+      text: `${safariMajor}.${safariMinor}`
+    };
   }
 }
 
@@ -295,101 +240,179 @@ const button = document.getElementById("button");
 const small = document.getElementById("small");
 const error = document.getElementById("error");
 
-function unsupported(status, heading, subtext, buttonText, smallText, errorText) {
-  badge.textContent = status;
-  title.textContent = heading;
-  version.textContent = subtext;
-  button.textContent = buttonText;
-  button.classList.add("disabled");
-  button.removeAttribute("href");
-  small.innerHTML = smallText;
-  error.textContent = errorText;
+function versionToParts(value) {
+  const text = String(value).replace("iOS", "").trim();
+  const parts = text.split(".");
+
+  return {
+    major: Number(parts[0] || 0),
+    minor: Number(parts[1] || 0)
+  };
 }
 
-const supportText = `
-  Think this is wrong? Contact
-  <a href="https://x.com/skylarksupport" target="_blank">@SkylarkSupport</a>.
-`;
-
-if (!isApple) {
-  unsupported(
-    "Unsupported Device",
-    "Skylark is designed for Apple devices",
-    "Use an iPhone, iPad, or supported Apple device to upgrade.",
-    "Unavailable",
-    supportText,
-    "Android, Windows, and Linux devices are not supported."
-  );
-
-  throw new Error("Unsupported device");
+function compareVersions(a, b) {
+  if (a.major !== b.major) return a.major - b.major;
+  return a.minor - b.minor;
 }
 
-if (!ios) {
-  unsupported(
-    "Version Not Detected",
-    "Skylark could not read your iOS version",
-    "Your device may be using an unsupported or unusual browser.",
-    "Unavailable",
-    supportText,
-    "Open this page in Safari on your Apple device."
-  );
-
-  throw new Error("Unknown iOS");
+function editionNumber(item) {
+  const name = item.edition || item.name || "";
+  const match = String(name).match(/\d+/);
+  return match ? Number(match[0]) : 0;
 }
 
-if (ios < 14.3) {
-  unsupported(
-    "Upgrade Unavailable",
-    "Your iOS version is too old for Skylark",
-    `Detected iOS ${ios}`,
-    "Unavailable",
-    supportText,
-    "iOS 14.3 or newer is required."
-  );
-
-  throw new Error("Too old");
+function getEditionName(item) {
+  return item.edition || item.name || `Edition ${editionNumber(item)}`;
 }
 
-let found = null;
+function getEditionLink(item) {
+  return item.link || item.url || item.download || item.downloadURL || "";
+}
 
-for (const item of editions) {
-  if (ios >= item.min && ios <= item.max) {
-    found = item;
+function getMinVersion(item) {
+  return versionToParts(item.min || item.minimum || item.minIOS || item.minimumIOS);
+}
+
+function getMaxVersion(item) {
+  return versionToParts(item.max || item.maximum || item.maxIOS || item.maximumIOS);
+}
+
+function isDownloadable(item) {
+  const status = String(item.status || item.support || "").toLowerCase();
+  const link = getEditionLink(item);
+
+  if (!link) return false;
+  if (item.available === false) return false;
+  if (item.downloadable === false) return false;
+  if (status.includes("development")) return false;
+  if (status.includes("unreleased")) return false;
+  if (status.includes("not available")) return false;
+
+  return true;
+}
+
+function setButton(text, link, disabled = false) {
+  button.textContent = text;
+
+  if (disabled || !link) {
+    button.classList.add("disabled");
+    button.removeAttribute("href");
+  } else {
+    button.classList.remove("disabled");
+    button.href = link;
   }
 }
 
-if (!found) {
-  unsupported(
-    "Not Yet Available",
-    "A Skylark edition for this iOS version is not available yet",
-    `Detected iOS ${ios}`,
-    "Unavailable",
-    `
-      Skylark may not have an edition for your current version yet.<br><br>
-      Contact <a href="https://x.com/skylarksupport" target="_blank">@SkylarkSupport</a>
-      if you believe this is an issue.
-    `,
-    "A compatible Skylark edition has not been released yet."
-  );
+function stopPage(status, heading, subtext, note) {
+  badge.textContent = status;
+  title.textContent = heading;
+  version.textContent = subtext;
+  setButton("Unavailable", "", true);
 
-  throw new Error("Unsupported iOS version");
+  small.innerHTML = `
+    Contact <a href="https://x.com/skylarksupport" target="_blank">@SkylarkSupport</a>
+    if you believe this is an issue.
+  `;
+
+  error.textContent = note;
 }
 
-badge.textContent = "Recommended Edition";
-title.textContent = `Upgrade to Skylark ${found.edition}`;
-version.textContent = `This is the Skylark edition built for iOS ${ios}.`;
+async function start() {
+  if (!isApple) {
+    stopPage(
+      "Unsupported Device",
+      "Skylark is designed for Apple devices",
+      "Use an iPhone, iPad, or supported Apple device.",
+      "Android, Windows, and Linux devices are not supported."
+    );
+    return;
+  }
 
-button.textContent = `Get ${found.edition}`;
-button.href = found.link;
+  if (!iosVersion) {
+    stopPage(
+      "Version Not Detected",
+      "Skylark could not read your iOS version",
+      "Open this page in Safari on your Apple device.",
+      "Unable to identify your iOS version."
+    );
+    return;
+  }
 
-small.innerHTML = `
-  Using the right edition keeps Skylark smoother, cleaner, and better matched to your device.<br><br>
-  Find more editions at
-  <a href="https://endlesspete.github.io/Undecimus/" target="_blank">Undecimus</a>.
-`;
+  let data;
 
-console.log("Detected iOS:", ios);
-console.log("Recommended Skylark:", found.edition);
+  try {
+    const response = await fetch(EDITIONS_URL, { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error("Unable to load editions.json");
+    }
+
+    data = await response.json();
+  } catch (err) {
+    stopPage(
+      "Edition Data Unavailable",
+      "Skylark could not load edition data",
+      "Please try again later.",
+      "The editions.json file could not be loaded."
+    );
+    return;
+  }
+
+  const editions = Array.isArray(data) ? data : data.editions;
+
+  if (!Array.isArray(editions)) {
+    stopPage(
+      "Invalid Edition Data",
+      "Skylark could not read the edition list",
+      "The editions.json file may be formatted incorrectly.",
+      "Edition data is missing or invalid."
+    );
+    return;
+  }
+
+  const availableEditions = editions
+    .filter(isDownloadable)
+    .sort((a, b) => editionNumber(a) - editionNumber(b));
+
+  const supportedEdition = availableEditions.find(item => {
+    const min = getMinVersion(item);
+    const max = getMaxVersion(item);
+
+    return (
+      compareVersions(iosVersion, min) >= 0 &&
+      compareVersions(iosVersion, max) <= 0
+    );
+  });
+
+  if (!supportedEdition) {
+    stopPage(
+      "No Supported Edition",
+      "Skylark does not have a supported edition for this iOS version",
+      `Detected iOS ${iosVersion.text}`,
+      "A compatible Skylark edition has not been released yet."
+    );
+    return;
+  }
+
+  const supportedName = getEditionName(supportedEdition);
+  const supportedLink = getEditionLink(supportedEdition);
+
+  badge.textContent = "Recommended Edition";
+  title.textContent = `Upgrade to ${supportedName}`;
+  version.textContent = `This is the Skylark edition built for iOS ${iosVersion.text}.`;
+
+  setButton(`Get ${supportedName}`, supportedLink);
+
+  small.innerHTML = `
+    Using the right edition keeps Skylark smoother, cleaner, and better matched to your device.<br><br>
+    Edition information is loaded from Skylark’s official edition list.
+  `;
+
+  console.log("Detected iOS:", iosVersion.text);
+  console.log("Recommended edition:", supportedName);
+}
+
+start();
 </script>
 
 </body>
