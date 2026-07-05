@@ -13,7 +13,7 @@
 :root {
   color-scheme: light dark;
   --bg: #f5f5f7;
-  --card: rgba(255,255,255,.84);
+  --card: rgba(255,255,255,.82);
   --text: #1c1c1e;
   --muted: #6e6e73;
   --border: rgba(0,0,0,.08);
@@ -25,13 +25,13 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #09090b;
-    --card: rgba(28,28,30,.8);
+    --card: rgba(28,28,30,.78);
     --text: #f2f2f7;
     --muted: #a1a1aa;
     --border: rgba(255,255,255,.1);
     --accent: #6aa9ff;
     --danger: #ff6961;
-    --warning: #ffd60a;
+    --warning: #ffb340;
   }
 }
 
@@ -116,27 +116,6 @@ body {
   line-height: 1.45;
 }
 
-.notice {
-  margin-top: 16px;
-  padding: 14px;
-  border-radius: 18px;
-  font-size: .88rem;
-  font-weight: 650;
-  line-height: 1.45;
-}
-
-.beta {
-  background: rgba(255,149,0,.12);
-  border: 1px solid rgba(255,149,0,.28);
-  color: var(--warning);
-}
-
-.macos {
-  background: rgba(0,122,255,.1);
-  border: 1px solid rgba(0,122,255,.22);
-  color: var(--accent);
-}
-
 .button {
   display: block;
   margin-top: 26px;
@@ -156,16 +135,14 @@ body {
   background: #8e8e93;
 }
 
-.secondary {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
+.refresh {
+  margin-top: 12px;
+  border: none;
+  background: transparent;
   color: var(--accent);
-  text-decoration: none;
-  font-size: .84rem;
-  font-weight: 700;
+  font-size: .9rem;
+  font-weight: 650;
+  cursor: pointer;
 }
 
 .small {
@@ -181,12 +158,32 @@ body {
   font-weight: 600;
 }
 
-.error {
+.notice {
   margin-top: 16px;
-  color: var(--danger);
-  font-size: .9rem;
+  padding: 13px 14px;
+  border-radius: 18px;
+  font-size: .86rem;
   font-weight: 650;
   line-height: 1.45;
+  display: none;
+}
+
+.notice.warning {
+  display: block;
+  color: #5c3900;
+  background: rgba(255,149,0,.16);
+}
+
+.notice.danger {
+  display: block;
+  color: var(--danger);
+  background: rgba(255,59,48,.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  .notice.warning {
+    color: #ffd28a;
+  }
 }
 
 .footer {
@@ -200,10 +197,6 @@ body {
 .footer a {
   color: var(--accent);
   text-decoration: none;
-}
-
-.hidden {
-  display: none;
 }
 </style>
 </head>
@@ -223,20 +216,11 @@ body {
     <div class="title" id="title">Finding your edition...</div>
     <div class="version" id="version">Please wait while Skylark checks compatibility.</div>
 
-    <div class="notice beta hidden" id="betaNotice">
-      This edition is currently in beta. Some features may change, improve, or behave differently while it is being tested.
-    </div>
-
-    <div class="notice macos hidden" id="macNotice">
-      Skylark is built for iPhone, iPad, and iPod touch. macOS Shortcuts may run Skylark, but edition matching works best from an iOS or iPadOS device.
-    </div>
-
     <a id="button" class="button disabled" href="#">Checking</a>
+    <button class="refresh" onclick="location.reload()">Check again</button>
 
     <div class="small" id="small">Loading edition data...</div>
-    <div class="error" id="error"></div>
-
-    <a class="secondary" href="https://skylark-inc.github.io">Back to Skylark</a>
+    <div class="notice" id="notice"></div>
   </div>
 
   <div class="footer">
@@ -248,20 +232,13 @@ body {
 
 <script>
 const EDITIONS_URL = "/editions.json";
+const UNSUPPORTED_ARTICLE = "https://skylark-inc.github.io/Support/UnsupportedPlatforms/";
 
 const ua = navigator.userAgent;
 
-const isIOSDevice =
-  /iPhone|iPad|iPod/.test(ua) ||
-  (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-
-const isMacOS =
-  /Macintosh/.test(ua) &&
-  navigator.maxTouchPoints <= 1;
-
-const isBlockedPlatform =
-  /Android|Windows|Linux/.test(ua) &&
-  !/iPhone|iPad|iPod/.test(ua);
+const isApple =
+  /iPhone|iPad|Macintosh/.test(ua) &&
+  !/Android|Windows|Linux/.test(ua);
 
 let iosVersion = null;
 
@@ -295,17 +272,16 @@ const title = document.getElementById("title");
 const version = document.getElementById("version");
 const button = document.getElementById("button");
 const small = document.getElementById("small");
-const error = document.getElementById("error");
-const betaNotice = document.getElementById("betaNotice");
-const macNotice = document.getElementById("macNotice");
+const notice = document.getElementById("notice");
 
 function versionToParts(value) {
-  const text = String(value || "").replace("iOS", "").replace("iPadOS", "").trim();
+  const text = String(value).replace("iOS", "").trim();
   const parts = text.split(".");
 
   return {
     major: Number(parts[0] || 0),
-    minor: Number(parts[1] || 0)
+    minor: Number(parts[1] || 0),
+    text
   };
 }
 
@@ -314,58 +290,30 @@ function compareVersions(a, b) {
   return a.minor - b.minor;
 }
 
-function getValue(item, keys) {
-  for (const key of keys) {
-    if (item && item[key] !== undefined && item[key] !== null) {
-      return item[key];
-    }
-  }
-
-  return "";
-}
-
 function editionNumber(item) {
-  const name = getValue(item, ["edition", "name", "title"]);
+  const name = item.edition || "";
   const match = String(name).match(/\d+/);
   return match ? Number(match[0]) : 0;
 }
 
 function getEditionName(item) {
-  return getValue(item, ["edition", "name", "title"]) || `Edition ${editionNumber(item)}`;
+  return item.edition || `Edition ${editionNumber(item)}`;
+}
+
+function getEditionVersion(item) {
+  return item.version ? ` ${item.version}` : "";
 }
 
 function getEditionLink(item) {
-  return getValue(item, ["link", "url", "download", "downloadURL", "downloadUrl", "shortcut"]);
+  return item.link || "";
 }
 
 function getMinVersion(item) {
-  return versionToParts(getValue(item, ["min", "minimum", "minIOS", "minIos", "minVersion", "minimumIOS"]));
+  return versionToParts(item.min);
 }
 
 function getMaxVersion(item) {
-  return versionToParts(getValue(item, ["max", "maximum", "maxIOS", "maxIos", "maxVersion", "maximumIOS"]));
-}
-
-function isBeta(item) {
-  const beta = getValue(item, ["beta", "Beta", "isBeta"]);
-  return beta === true || String(beta).toLowerCase() === "true";
-}
-
-function isDownloadable(item) {
-  const status = String(getValue(item, ["status", "support", "supportStatus"])).toLowerCase();
-  const link = getEditionLink(item);
-
-  if (!link) return false;
-  if (item.available === false) return false;
-  if (item.downloadable === false) return false;
-  if (status.includes("unsupported")) return false;
-  if (status.includes("development")) return false;
-  if (status.includes("unreleased")) return false;
-  if (status.includes("not available")) return false;
-  if (status.includes("coming")) return false;
-  if (status.includes("disabled")) return false;
-
-  return true;
+  return versionToParts(item.max);
 }
 
 function setButton(text, link, disabled = false) {
@@ -380,69 +328,65 @@ function setButton(text, link, disabled = false) {
   }
 }
 
+function setNotice(message, type = "warning") {
+  notice.textContent = message;
+  notice.className = `notice ${type}`;
+}
+
+function clearNotice() {
+  notice.textContent = "";
+  notice.className = "notice";
+}
+
+function stopUnsupported(status, heading, subtext, note) {
+  badge.textContent = status;
+  title.textContent = heading;
+  version.textContent = subtext;
+
+  setButton("Learn More", UNSUPPORTED_ARTICLE);
+
+  small.innerHTML = `
+    This platform is not supported by Skylark.
+  `;
+
+  setNotice(note, "danger");
+}
+
 function stopPage(status, heading, subtext, note) {
   badge.textContent = status;
   title.textContent = heading;
   version.textContent = subtext;
-  setButton("Unavailable", "", true);
 
-  small.innerHTML = `
-    Contact <a href="https://x.com/skylarksupport" target="_blank">@SkylarkSupport</a>
-    if you believe this is an issue.
-  `;
+  setButton("Check again", "", true);
 
-  error.textContent = note;
+  small.textContent = "Edition data is not available right now.";
+  setNotice(note, "danger");
+}
+
+function isDownloadable(item) {
+  if (!getEditionLink(item)) return false;
+  return true;
 }
 
 async function start() {
-  if (isBlockedPlatform) {
-    stopPage(
-      "Unsupported Device",
-      "Skylark is designed for Apple devices",
-      "Use an iPhone, iPad, iPod touch, or Mac with Shortcuts.",
-      "Sorry, but your platform is not supported."
-    );
-    return;
-  }
+  clearNotice();
 
-  if (isMacOS) {
-    macNotice.classList.remove("hidden");
-
-    stopPage(
-      "macOS Detected",
-      "Use an iPhone or iPad to find your exact edition",
-      "Skylark may run on macOS Shortcuts, but editions are matched by iOS and iPadOS versions.",
-      "macOS support can vary depending on your Shortcuts setup."
-    );
-    return;
-  }
-
-  if (!isIOSDevice) {
-    stopPage(
-      "Unsupported Device",
-      "Skylark is designed for Apple devices",
-      "Use an iPhone, iPad, iPod touch, or Mac with Shortcuts.",
-      "Sorry, but your platform is not supported."
+  if (!isApple) {
+    stopUnsupported(
+      "Unsupported Platform",
+      "Skylark is made for Apple devices",
+      "Use an iPhone, iPad, or supported Apple device.",
+      "Android, Windows, and Linux devices are not supported."
     );
     return;
   }
 
   if (!iosVersion) {
-    stopPage(
+    stopUnsupported(
       "Version Not Detected",
       "Skylark could not read your iOS version",
       "Open this page in Safari on your Apple device.",
-      "Unable to identify your iOS version."
-    );
-    return;
-  }
-
-  if (compareVersions(iosVersion, { major: 14, minor: 3 }) < 0) {
-    stopPage(
-      "Software Too Old",
-      "Your software version is too old",
-      `Detected iOS/iPadOS ${iosVersion.text}`,
-      "Sorry, your software version is too old."
+      "Your platform or browser could not be identified."
     );
     return;
   }
@@ -479,11 +423,11 @@ async function start() {
     return;
   }
 
-  const availableEditions = editions
-    .filter(isDownloadable)
+  const sortedEditions = editions
+    .slice()
     .sort((a, b) => editionNumber(a) - editionNumber(b));
 
-  const supportedEdition = availableEditions.find(item => {
+  let supportedEdition = sortedEditions.find(item => {
     const min = getMinVersion(item);
     const max = getMaxVersion(item);
 
@@ -493,37 +437,78 @@ async function start() {
     );
   });
 
+  let unconfirmedSameMajor = false;
+
   if (!supportedEdition) {
-    stopPage(
-      "No Supported Edition",
-      "Skylark does not have a supported edition for this iOS version",
-      `Detected iOS/iPadOS ${iosVersion.text}`,
-      "A compatible Skylark edition has not been released yet."
+    supportedEdition = sortedEditions.find(item => {
+      const min = getMinVersion(item);
+      const max = getMaxVersion(item);
+
+      return (
+        iosVersion.major === max.major &&
+        compareVersions(iosVersion, max) > 0 &&
+        compareVersions(iosVersion, min) >= 0
+      );
+    });
+
+    if (supportedEdition) {
+      unconfirmedSameMajor = true;
+    }
+  }
+
+  if (!supportedEdition) {
+    stopUnsupported(
+      "Not Supported",
+      "No Skylark edition is available for this software version",
+      `Detected iOS ${iosVersion.text}.`,
+      "Your software version does not currently match a supported Skylark edition."
     );
     return;
   }
 
-  const supportedName = getEditionName(supportedEdition);
-  const supportedLink = getEditionLink(supportedEdition);
+  const editionName = getEditionName(supportedEdition);
+  const editionVersion = getEditionVersion(supportedEdition);
+  const editionLink = getEditionLink(supportedEdition);
 
   badge.textContent = "Recommended Edition";
-  title.textContent = `Upgrade to ${supportedName}`;
-  version.textContent = `This is the Skylark edition built for iOS/iPadOS ${iosVersion.text}.`;
+  title.textContent = `Upgrade to ${editionName}`;
+  version.textContent = `This is the Skylark edition built for iOS ${iosVersion.text}.`;
 
-  setButton(`Get ${supportedName}`, supportedLink);
-
-  if (isBeta(supportedEdition)) {
-    betaNotice.classList.remove("hidden");
+  if (editionLink) {
+    setButton(`Get ${editionName}${editionVersion}`, editionLink);
+  } else {
+    setButton("Download Unavailable", "", true);
+    setNotice("No download is currently available for this edition. Try again later.", "danger");
   }
 
   small.innerHTML = `
-    Using the right edition keeps Skylark smoother, cleaner, and better matched to your device.<br><br>
-    Edition information is loaded from Skylark’s official edition list.
+    Using the right edition keeps Skylark smoother, cleaner, and better matched to your device.
   `;
 
-  console.log("Detected iOS/iPadOS:", iosVersion.text);
-  console.log("Recommended edition:", supportedName);
-  console.log("Beta:", isBeta(supportedEdition));
+  const messages = [];
+
+  if (supportedEdition.beta === true) {
+    messages.push(
+      `${editionName} is currently in beta. Some features may be unfinished, unstable, or change before release. For the best experience, use the latest software beta available.`
+    );
+  }
+
+  if (supportedEdition.alert === true && supportedEdition.alertMessage) {
+    messages.push(supportedEdition.alertMessage);
+  }
+
+  if (unconfirmedSameMajor) {
+    messages.push(
+      `Your software version is newer than the confirmed range for ${editionName}. The download is available, but compatibility has not yet been confirmed.`
+    );
+  }
+
+  if (messages.length > 0 && editionLink) {
+    setNotice(messages.join(" "), "warning");
+  }
+
+  console.log("Detected iOS:", iosVersion.text);
+  console.log("Recommended edition:", editionName);
 }
 
 start();
